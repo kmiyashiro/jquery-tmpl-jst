@@ -1,0 +1,33 @@
+###
+  Here's the example Cakefile for jquery-tmpl-jst, using Underscore templates.
+  Feel free to use it anywhere!
+###
+fs     = require 'fs'
+util   = require 'util'
+tmpl   = require './lib/index.js'
+
+templatesDir = 'example/templates_underscore'
+targetDir    = 'example'
+
+task 'watch', 'Watch prod source files and build changes', ->
+  invoke 'build'
+  util.log "Watching for changes in #{templatesDir}"
+  templates = fs.readdirSync(templatesDir)
+
+  for file in templates then do (file) ->
+    fs.watchFile "#{templatesDir}/#{file}", (curr, prev) ->
+      if +curr.mtime isnt +prev.mtime
+        util.log "Saw change in #{templatesDir}/#{file}"
+        invoke 'build'
+
+task 'build', 'Pre compile Underscore Templates', ->
+  tmpl.build templatesDir, ( data ) ->
+    tmpl.process( data, targetDir )
+  , '_'
+
+handleError = (error) -> 
+    util.log error
+    displayNotification error
+###
+  End Sample Cakefile
+###

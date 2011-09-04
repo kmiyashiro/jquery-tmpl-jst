@@ -21,7 +21,8 @@ and jquery-tmpl-just will expose 2 functions: `build` and `process`
 
       // Creates a file called templates.js
       tmpl.process( output, 'path/to/output/dir' );
-    });
+    },
+    '_'); // Uses Underscore Templates, default is jQuery Templates
 
 Build creates a string of executable javascript from a directory of
 templates. It accepts the location of your templates and a callback
@@ -35,9 +36,10 @@ directory. It accepts a template string and a the target location.
 jquery-tmpl-jst also comes with a command line tool, which you can use
 like this:
 
-    $ tmpl path/to/templates path/to/save
+    $ tmpl path/to/templates [path/to/save] [template_style]
 
-This creates the file `templates.js` to the target directory. If no
+This creates the file `templates.js` to the target directory, compiled
+using the template\_style: jQuery (default) or underscore (\_). If no
 arguments are passed, the current path will be used instead.
 
 ## Using as a Cakefile
@@ -46,9 +48,12 @@ Since this is really meant to be used as a build tool, a Cakefile is
 included as well, but keep in mind that _coffee-script must be included
 as a dependency in order to use the Cakefile_.
 
+To install Coffeescript, do `npm install coffee-script -g`.
+
 Modify the Cakefile's `targetDir` and `templateDir` variables to point
 to you desired build location and the location of your templates,
-respectively.
+respectively. An underscore example Cakefile is also included, you must
+rename this to just `Cakefile` for it to work with `cake`.
 
 Run `cake build` or `cake watch` from the root of your project to
 generate the compiled templates. `cake watch` will listen for changes in
@@ -62,9 +67,10 @@ and jQuery-tmpl in there too.
 
 `templates.js` creates a global object called `window.JST`.
 
-The `JST` object includes a `templates` object containing all of your
-precompiled templates. Helper methods for easier usage are attached
-directly to the `JST` object, which is structured like this:
+If you are using jQuery templates, the `JST` object includes a `templates`
+object containing all of your precompiled templates. Helper methods for 
+easier usage are attached directly to the `JST` object, which is structured
+like this:
 
     JST = {
       <template_name>,
@@ -93,7 +99,22 @@ And it's final usage would look something like this:
           compiled_template = window.JST.sample_template( my_data );
 
       $('body').html( compiled_template );
+      
+### Underscore
 
+If you are using Underscore Templates, only the helper functions are made
+(JST.templates.* is undefined).
+
+      JST.<file_name> = function( data ) {
+          return compiled_underscore_template_function(data)
+      }
+
+The usage is identical to the jQuery version.
+
+    var data = { title: "foobar" },
+        compiled_template = window.JST.sample_template( my_data );
+
+    $('body').html( compiled_template );
 
 ## Multiple Named Templates from a single file
 
